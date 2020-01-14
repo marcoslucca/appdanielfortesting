@@ -1,0 +1,30 @@
+version: "2.1"
+
+services:
+
+  api:
+    build: customer-api/
+    depends_on:
+      db:
+        condition: service_started
+      dns:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    hostname: api
+
+  db:
+    image: postgres:12.1
+    hostname: db
+
+  dns:
+    image: defreitas/dns-proxy-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/resolv.conf:/etc/resolv.conf
+
+networks:
+  default:
+    driver: bridge
