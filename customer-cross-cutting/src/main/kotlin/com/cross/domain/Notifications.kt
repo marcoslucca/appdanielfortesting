@@ -1,26 +1,19 @@
 package com.cross.domain
 
-data class Notification (val field : String? = null, val notification: String = "") {
-    fun hasValue() : Boolean = !notification.isNullOrEmpty()
-}
+data class Notification(val field: String? = null, val notification: String = "")
 
-class Notifications () {
+sealed class ValidationResult<out L, out R> {
 
-    constructor(notification: Notification) : this() {
-        addNotification(notification)
+    companion object {
+        fun <T> validate(validations: List<ValidationResult<Notification, T>>) =
+                validations.filter { it is ValidationResult.Failure }
+                        .map { it as ValidationResult.Failure }
+                        .map { it.notification }
+
+        fun <T> hasNotification(validations: List<ValidationResult<Notification, T>>) =
+                validations.filter { it is ValidationResult.Failure }.isEmpty()
     }
 
-    private val _notifications = mutableListOf<Notification>()
-
-    fun addNotification(notification: Notification) {
-        if (notification.hasValue()) {
-            _notifications.add(notification)
-        }
-    }
-
-    val notifications: List<Notification>
-        get() = _notifications
-
-    fun isNotEmpty() = _notifications.isNotEmpty()
-
+    class Failure(val notification: Notification) : ValidationResult<Notification, Nothing>()
+    class Success<T>(val success: T) : ValidationResult<Nothing, T>()
 }

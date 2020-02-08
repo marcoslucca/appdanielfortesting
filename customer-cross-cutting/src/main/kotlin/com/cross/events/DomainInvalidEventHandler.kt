@@ -17,7 +17,7 @@ class DomainInvalidEventHandler (val response : HttpServletResponse, val logger:
 
     @EventListener
     fun eventHandler(domainInvalidEvent: DomainInvalidEvent) {
-        val notifications = Gson().toJson(domainInvalidEvent.notifications.notifications)
+        val notifications = Gson().toJson(domainInvalidEvent.notifications)
         logger.withInfoMessage("There were the following errors creating the entity $notifications")
         val out = response.writer
         response.reset()

@@ -36,13 +36,18 @@ class CustomerTest {
 
     @Test
     fun shouldValidateCreationCustomerWithEmptyCompleteNameAndEmptyNickName() {
+
+        val numbers = mutableListOf("one", "two", "three", "four", "five")
+        val resultList = numbers.map { it.length }.filter { it > 3 }
+        println(resultList)
+
         val resultCustomer = Customer.create(completeName = "", nickName = "", customerSpecification = customerSpecification)
 
         when(resultCustomer) {
             is ResultEntity.Failure ->
                 apply {
                     assertTrue("Should have notifications", resultCustomer.notifications.isNotEmpty())
-                    val notifications = resultCustomer.notifications.notifications
+                    val notifications = resultCustomer.notifications
                     assertEquals("Complete Name", notifications[0].field)
                     assertEquals("Complete Name is required.", notifications[0].notification)
                     assertEquals("Nick Name", notifications[1].field)
@@ -59,7 +64,7 @@ class CustomerTest {
             is ResultEntity.Failure ->
                 apply {
                     assertTrue("Should have notifications", resultCustomer.notifications.isNotEmpty())
-                    val notifications = resultCustomer.notifications.notifications
+                    val notifications = resultCustomer.notifications
                     assertEquals("Complete Name must be less than 20 characters.", notifications[0].notification)
                     assertEquals("Nick Name must be less than 7 characters.", notifications[1].notification)
                 }
@@ -75,7 +80,7 @@ class CustomerTest {
             is ResultEntity.Failure ->
                 apply {
                     assertTrue("Should have notifications", resultCustomer.notifications.isNotEmpty())
-                    val notifications = resultCustomer.notifications.notifications
+                    val notifications = resultCustomer.notifications
                     assertEquals("Customer already exists.", notifications[0].notification)
                 }
         }

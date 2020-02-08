@@ -1,25 +1,19 @@
 package com.cross.domain
 
 sealed class ResultEntity<out L, out R> {
-    class Failure(val notifications: Notifications) : ResultEntity<Notifications, Nothing>()
+    class Failure(val notifications: List<Notification>) : ResultEntity<List<Notification>, Nothing>()
     class Success<T : Entity>(val success: T) : ResultEntity<Nothing, T>()
 }
 
 open abstract class Entity {
 
-    private val _notifications = Notifications()
+    abstract fun validate() : List<ValidationResult<Notification, Any>>
 
-    val notifications: Notifications
-        get() = _notifications
+    val notifications : List<Notification>
+        get() = ValidationResult.validate(validate())
 
-    abstract fun validate()
-
-    protected  fun addNotification(notification: Notification) {
-        if (notification.hasValue()) {
-            _notifications.addNotification(notification)
-        }
+    fun hasNotification() : Boolean {
+        return ValidationResult.hasNotification(validate())
     }
-
-    fun hasNotifications() : Boolean = _notifications.isNotEmpty()
 
 }
