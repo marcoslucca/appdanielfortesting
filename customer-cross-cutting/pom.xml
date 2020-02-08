@@ -53,6 +53,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.arrow-kt/arrow-optics -->
+		<dependency>
+			<groupId>io.arrow-kt</groupId>
+			<artifactId>arrow-optics</artifactId>
+			<version>0.10.4</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

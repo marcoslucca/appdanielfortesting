@@ -1,5 +1,9 @@
 package com.customer.domain
 
+import arrow.core.Either
+import arrow.core.Left
+import arrow.core.Right
+import arrow.core.getOrElse
 import com.cross.domain.*
 import com.cross.domain.ResultEntity.*
 import com.cross.extensions.isNullOrBlank
@@ -10,10 +14,10 @@ enum class CustomerStatus {
 }
 
 data class Customer private constructor(
-        val id : Long?,
-        val completeName : String,
-        val nickName : String,
-        val customerSpecification : CustomerSpecification) : Entity () {
+        val id: Long?,
+        val completeName: String,
+        val nickName: String,
+        val customerSpecification: CustomerSpecification) : Entity() {
 
     private val _status: CustomerStatus = CustomerStatus.ACTIVE
 
@@ -23,29 +27,31 @@ data class Customer private constructor(
 
     companion object {
         fun create(
-            id : Long? = null,
-           completeName : String,
-           nickName : String,
-           customerSpecification : CustomerSpecification
-        ) : ResultEntity<List<Notification>, Customer> {
+                id: Long? = null,
+                completeName: String,
+                nickName: String,
+                customerSpecification: CustomerSpecification
+        ): Either<List<Notification>, Customer> {
 
             val newCustomer = Customer(id, completeName, nickName, customerSpecification)
 
-            return  when(newCustomer.hasNotification()) {
-                true -> Success<Customer>(newCustomer)
-                else -> Failure(newCustomer.notifications)
+            return when (newCustomer.hasNotification()) {
+                true -> Right(newCustomer)
+                else -> Left(newCustomer.notifications.getOrElse { emptyList() })
             }
         }
     }
 
-    override fun validate() = listOf(
-            completeName.validateSizeSmallerThan(20, "Complete Name must be less than 20 characters.", "Complete Name"),
-            completeName.isNullOrBlank(message = "Complete Name is required.", field = "Complete Name"),
-            nickName.isNullOrBlank("Nick Name is required.", "Nick Name"),
-            nickName.validateSizeSmallerThan(7, "Nick Name must be less than 7 characters.", "Nick Name"),
-            customerSpecification.isSatisfiedBy(this)
-    )
-
-    val status get() = _status
+    override fun validate() =
+            completeName.validateSizeSmallerThan(20, "Complete Name must be less than 20 characters.", "Complete Name")
+                    .flatMap {
+                        completeName.isNullOrBlank(message = "Complete Name is required.", field = "Complete Name")
+                    }
+                    .flatMap {
+                        nickName.isNullOrBlank("Nick Name is required.", "Nick Name")
+                    }
+                    .flatMap {
+                        nickName.validateSizeSmallerThan(7, "Nick Name must be less than 7 characters.", "Nick Name")
+                    }
 
 }

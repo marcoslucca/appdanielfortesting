@@ -1,19 +1,21 @@
 package com.cross.extensions
 
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
 import com.cross.domain.Notification
-import com.cross.domain.ValidationResult
 
-fun String.validateSizeSmallerThan(length: Int, message: String, field : String? = null) : ValidationResult<Notification, String> {
+fun String.validateSizeSmallerThan(length: Int, message: String, field : String? = null) : Option<List<Notification>> {
     return when {
-        this.length > length -> ValidationResult.Failure(Notification(notification = message, field = field))
-        else -> ValidationResult.Success(this)
+        this.length > length -> Some(mutableListOf(Notification(notification = message, field = field)))
+        else -> None
     }
 
 }
 
-fun String.isNullOrBlank(message: String, field : String? = null) : ValidationResult<Notification, String> {
+fun String.isNullOrBlank(message: String, field : String? = null) : Option<List<Notification>> {
    return when {
-        this.isNullOrBlank() -> ValidationResult.Failure(Notification(notification = message, field = field))
-       else -> ValidationResult.Success(this)
+        this.isNullOrBlank() -> Some(mutableListOf(Notification(notification = message, field = field)))
+       else -> None
     }
 }

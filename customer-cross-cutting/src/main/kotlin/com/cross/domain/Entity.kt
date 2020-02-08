@@ -1,5 +1,7 @@
 package com.cross.domain
 
+import arrow.core.Option
+
 sealed class ResultEntity<out L, out R> {
     class Failure(val notifications: List<Notification>) : ResultEntity<List<Notification>, Nothing>()
     class Success<T : Entity>(val success: T) : ResultEntity<Nothing, T>()
@@ -7,13 +9,11 @@ sealed class ResultEntity<out L, out R> {
 
 open abstract class Entity {
 
-    abstract fun validate() : List<ValidationResult<Notification, Any>>
+    abstract fun validate(): Option<List<Notification>>
 
-    val notifications : List<Notification>
-        get() = ValidationResult.validate(validate())
+    val notifications: Option<List<Notification>>
+        get() = validate()
 
-    fun hasNotification() : Boolean {
-        return ValidationResult.hasNotification(validate())
-    }
+    fun hasNotification() = validate().isDefined()
 
 }

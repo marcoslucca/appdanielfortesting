@@ -17,18 +17,21 @@ class CreateCustomerHandler(val customerSpecification: CustomerSpecification, va
     fun handle(customerCommand: CreateCustomerCommand) {
 
         logger.toField("complete name", customerCommand.completeName)
-              .toField("nick name", customerCommand.nickName)
-              .withInfoMessage("Received command with parameters")
+                .toField("nick name", customerCommand.nickName)
+                .withInfoMessage("Received command with parameters")
 
-        val resultCustomer = Customer.create(completeName = customerCommand.completeName,
-                nickName = customerCommand.nickName,
-                customerSpecification = customerSpecification)
-
-        when(resultCustomer) {
-            is Failure -> eventPublisher.publisher(DomainInvalidEvent(resultCustomer.notifications))
-            is Success -> customerRepository.insert(resultCustomer.success)
-        }
-
+        Customer
+                .create(completeName = customerCommand.completeName,
+                        nickName = customerCommand.nickName,
+                        customerSpecification = customerSpecification)
+                .bimap(
+                        {
+                            eventPublisher.publisher(DomainInvalidEvent(it))
+                        },
+                        {
+                            customerRepository.insert(it)
+                        }
+                )
     }
 
 }
